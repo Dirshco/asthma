@@ -635,10 +635,10 @@
         <div class="content" id="mainContent">
             <!-- Tab Navigation -->
             <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('learn')">Learn</button>
-                <button class="tab-btn" onclick="switchTab('play')">Play</button>
-                <button class="tab-btn" onclick="switchTab('community')">Community</button>
-                <button class="tab-btn" onclick="switchTab('rewards')">Rewards</button>
+                <button class="tab-btn active" onclick="switchTab('learn', event)">Learn</button>
+                <button class="tab-btn" onclick="switchTab('play', event)">Play</button>
+                <button class="tab-btn" onclick="switchTab('community', event)">Community</button>
+                <button class="tab-btn" onclick="switchTab('rewards', event)">Rewards</button>
             </div>
 
             <!-- LEARN TAB -->
@@ -933,7 +933,7 @@
     </div>
 
     <script>
-        function switchTab(tabName) {
+        function switchTab(tabName, event) {
             // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.style.display = 'none';
@@ -946,7 +946,13 @@
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            event.target.classList.add('active');
+            // event.target.classList.add('active');
+            if (event && event.target) { // Added a check for safety
+        event.target.classList.add('active');
+    } else {
+         // Fallback logic to find the correct button if event is missing (more robust)
+         document.querySelector(`.tab-btn[onclick*="${tabName}"]`).classList.add('active');
+    }
         }
 
         function switchNav(navName) {
