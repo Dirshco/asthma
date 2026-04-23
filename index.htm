@@ -1,0 +1,802 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BreathWell - Asthma Education & Community</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --purple: #7B3FF2;
+            --yellow: #FFD700;
+            --teal: #00D9D9;
+            --light-purple: #E8D9FF;
+            --dark-bg: #F8F5FF;
+            --white: #FFFFFF;
+            --text-dark: #333333;
+            --shadow: 0 4px 15px rgba(0,0,0,0.1);
+            --shadow-lg: 0 8px 30px rgba(123, 63, 242, 0.2);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            max-width: 500px;
+            margin: 20px auto;
+            background: var(--white);
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            min-height: 95vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--purple) 0%, var(--teal) 100%);
+            padding: 20px;
+            color: var(--white);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 30px;
+            flex-shrink: 0;
+        }
+
+        .header-left h1 {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notification-badge, .profile-circle {
+            transition: transform 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .notification-badge span {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: red;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-circle {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .content {
+            padding: 20px;
+            overflow-y: auto;
+            flex-grow: 1;
+            scrollbar-width: thin;
+            scrollbar-color: var(--teal) transparent;
+        }
+
+        .content::-webkit-scrollbar {
+            width: 6px;
+        }
+        .content::-webkit-scrollbar-thumb {
+            background: var(--teal);
+            border-radius: 3px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            scrollbar-width: none;
+        }
+        .tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-btn {
+            flex-shrink: 0;
+            padding: 10px 16px;
+            border: none;
+            background: var(--light-purple);
+            color: var(--purple);
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--purple), var(--teal));
+            color: var(--white);
+            box-shadow: var(--shadow);
+        }
+
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeSlideIn 0.5s ease-out;
+        }
+
+        .bottom-nav {
+            position: sticky;
+            bottom: 0;
+            background: var(--white);
+            display: flex;
+            justify-content: space-around;
+            border-top: 2px solid #f0f0f0;
+            padding: 10px 0;
+            flex-shrink: 0;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            color: #999;
+            transition: all 0.3s;
+            font-size: 12px;
+            font-weight: 600;
+            flex: 1;
+            padding: 8px 0;
+        }
+        .nav-item.active {
+            color: var(--purple);
+        }
+        .nav-item i {
+            font-size: 22px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--purple);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 16px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--purple), var(--teal));
+            color: var(--white);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(123, 63, 242, 0.4);
+        }
+
+        .points-display {
+            background: linear-gradient(135deg, var(--purple), var(--teal));
+            color: var(--white);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-lg);
+        }
+        .points-number {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .game-card {
+            background: linear-gradient(135deg, rgba(123, 63, 242, 0.15), rgba(0, 217, 217, 0.15));
+            border: 2px solid var(--teal);
+            border-radius: 15px;
+            padding: 16px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .game-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 217, 217, 0.3);
+        }
+
+        .forum-post {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 16px;
+            margin-bottom: 10px;
+            box-shadow: var(--shadow);
+        }
+
+        .rewards-container {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .reward-badge {
+            background: var(--light-purple);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            min-width: 80px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .reward-badge.locked {
+            opacity: 0.6;
+        }
+
+        /* Quiz */
+        .quiz-question {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        .quiz-option {
+            background: var(--light-purple);
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .quiz-option:hover {
+            background: #d4c2f7;
+        }
+        .quiz-option.correct {
+            background: #d4edda;
+            color: #155724;
+        }
+        .quiz-option.wrong {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Memory game */
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin: 15px 0;
+        }
+        .memory-card {
+            aspect-ratio: 1;
+            background: var(--purple);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            user-select: none;
+        }
+        .memory-card.flipped {
+            background: var(--teal);
+        }
+        .memory-card.matched {
+            background: #aaa;
+            cursor: default;
+            opacity: 0.7;
+        }
+
+        /* Breathing */
+        .breathing-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--purple), var(--teal));
+            margin: 0 auto 20px;
+            transition: transform 4s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+        .breathing-circle.inhale {
+            transform: scale(1.4);
+        }
+        .breathing-circle.exhale {
+            transform: scale(1);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: flex-end;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: var(--white);
+            width: 100%;
+            max-width: 500px;
+            border-radius: 30px 30px 0 0;
+            padding: 30px 20px 20px;
+            animation: slideUp 0.4s ease-out;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            background: var(--light-purple);
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            color: var(--purple);
+        }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./service-worker.js")
+        .then(reg => console.log("Service Worker Registered ✅", reg.scope))
+        .catch(err => console.error("Service Worker Failed ❌", err));
+    });
+  }
+</script>
+
+<div class="app-container">
+    <div class="header">
+        <div class="header-left">
+            <h1><i class="fas fa-wind"></i> BreathWell</h1>
+        </div>
+        <div class="header-right">
+            <div class="notification-badge" onclick="showNotifications()">
+                <i class="fas fa-bell"></i>
+                <span id="notifCount">3</span>
+            </div>
+            <div class="profile-circle" onclick="showProfile()">JD</div>
+        </div>
+    </div>
+
+    <div class="content" id="mainContent">
+        <div class="tabs" role="tablist">
+            <button id="tab-btn-learn" class="tab-btn active" onclick="switchTab('learn')">Learn</button>
+            <button id="tab-btn-play" class="tab-btn" onclick="switchTab('play')">Play</button>
+            <button id="tab-btn-community" class="tab-btn" onclick="switchTab('community')">Community</button>
+            <button id="tab-btn-rewards" class="tab-btn" onclick="switchTab('rewards')">Rewards</button>
+        </div>
+
+        <!-- Learn Tab -->
+        <div id="learn-tab" class="tab-content active">
+            <div class="points-display">
+                <div>
+                    <h3>Your Points</h3>
+                    <div class="points-number" id="pointsDisplay">0</div>
+                </div>
+                <div>
+                    <p>Level</p>
+                    <div class="level-badge" id="levelDisplay">1</div>
+                </div>
+            </div>
+
+            <div class="section-title"><i class="fas fa-graduation-cap"></i> Today's Quiz</div>
+            <div class="card quiz-card" id="quizCard">
+                <div id="quizQuestion" class="quiz-question">Loading...</div>
+                <div id="quizOptions"></div>
+                <div id="quizResult" style="margin-top:10px; font-weight:600;"></div>
+            </div>
+
+            <div class="section-title" style="margin-top: 25px;"><i class="fas fa-stethoscope"></i> Expert Tips</div>
+            <div class="card">
+                <div style="font-size: 13px; line-height: 1.6;">
+                    "During high pollen seasons, keep your windows closed and use an air purifier. This simple step can significantly reduce your asthma symptoms!"
+                </div>
+            </div>
+        </div>
+
+        <!-- Play Tab -->
+        <div id="play-tab" class="tab-content">
+            <div class="section-title"><i class="fas fa-gamepad"></i> Mini Games</div>
+            <div class="game-grid">
+                <div class="game-card" onclick="startMemoryGame()">🧠<div>Memory Match</div></div>
+                <div class="game-card" onclick="startBreathing()">🫁<div>Breath Control</div></div>
+            </div>
+            <div class="section-title"><i class="fas fa-trophy"></i> Leaderboard</div>
+            <div class="card" id="leaderboard">
+                <p>Loading leaderboard...</p>
+            </div>
+        </div>
+
+        <!-- Community Tab -->
+        <div id="community-tab" class="tab-content">
+            <div class="section-title"><i class="fas fa-comments"></i> Community Forum</div>
+            <button class="btn" style="margin-bottom:15px;" onclick="addNewPost()"><i class="fas fa-plus"></i> New Discussion</button>
+            <div id="forumPosts">
+                <div class="forum-post"><strong>Sarah:</strong> Just hit my 30-day streak! 🎉</div>
+                <div class="forum-post"><strong>Mike:</strong> Any tips for exercising with asthma?</div>
+            </div>
+        </div>
+
+        <!-- Rewards Tab -->
+        <div id="rewards-tab" class="tab-content">
+            <div class="section-title"><i class="fas fa-star"></i> Achievements</div>
+            <div class="rewards-container" id="achievements">
+                <div class="reward-badge" id="ach-quiz">🎓<div>Quiz Master</div><small>Complete 5 quizzes</small></div>
+                <div class="reward-badge locked" id="ach-streak">⚔️<div>7-Day Warrior</div><small>Login 7 days</small></div>
+                <div class="reward-badge locked" id="ach-games">🎮<div>Game On</div><small>Play all games</small></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active" id="nav-item-learn" onclick="switchNav('learn')"><i class="fas fa-book"></i><span>Learn</span></div>
+        <div class="nav-item" id="nav-item-play" onclick="switchNav('play')"><i class="fas fa-play"></i><span>Play</span></div>
+        <div class="nav-item" id="nav-item-community" onclick="switchNav('community')"><i class="fas fa-users"></i><span>Community</span></div>
+        <div class="nav-item" id="nav-item-rewards" onclick="switchNav('rewards')"><i class="fas fa-trophy"></i><span>Rewards</span></div>
+    </div>
+</div>
+
+<!-- Game Modal -->
+<div id="gameModal" class="modal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <h2 id="gameTitle" style="color:var(--purple); margin-bottom:20px;"></h2>
+        <div id="gameContent"></div>
+    </div>
+</div>
+
+<script>
+// ---------- STATE ----------
+const STORAGE_KEY = 'breathwell_data';
+let appData = {
+    points: 0,
+    level: 1,
+    quizCount: 0,
+    gamesPlayed: [],
+    streak: 0,
+    lastLogin: null
+};
+
+// Load from localStorage
+function loadData() {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) appData = JSON.parse(stored);
+    updateUI();
+}
+function saveData() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+    updateUI();
+}
+
+// ---------- UI UPDATE ----------
+function updateUI() {
+    document.getElementById('pointsDisplay').textContent = appData.points;
+    document.getElementById('levelDisplay').textContent = appData.level;
+    // achievements
+    const achQuiz = document.getElementById('ach-quiz');
+    const achStreak = document.getElementById('ach-streak');
+    const achGames = document.getElementById('ach-games');
+    if (appData.quizCount >= 5) achQuiz.classList.remove('locked');
+    if (appData.streak >= 7) achStreak.classList.remove('locked');
+    if (appData.gamesPlayed.includes('memory') && appData.gamesPlayed.includes('breathing')) {
+        achGames.classList.remove('locked');
+    }
+    // notification
+    const notifCount = document.getElementById('notifCount');
+    const count = (appData.points > 0 && appData.points % 100 === 0) ? 1 : 0; // dummy
+    notifCount.textContent = count || '';
+    notifCount.style.display = count ? 'block' : 'none';
+    // leaderboard
+    updateLeaderboard();
+}
+
+function addPoints(amount) {
+    appData.points += amount;
+    appData.level = Math.floor(appData.points / 500) + 1;
+    saveData();
+}
+
+// ---------- QUIZ ----------
+const quizQuestions = [
+    {
+        question: "Which of these is a common asthma trigger?",
+        options: ["Pollen", "Clean air", "Water", "Sunlight"],
+        correct: 0
+    },
+    {
+        question: "What is a quick-relief medication?",
+        options: ["Inhaled corticosteroid", "Albuterol", "Leukotriene modifier", "Theophylline"],
+        correct: 1
+    },
+    {
+        question: "True or False: Asthma can be cured.",
+        options: ["True", "False"],
+        correct: 1
+    }
+];
+
+let currentQuestion = 0;
+let quizScore = 0;
+
+function loadQuiz() {
+    const q = quizQuestions[currentQuestion % quizQuestions.length];
+    document.getElementById('quizQuestion').textContent = q.question;
+    const optionsDiv = document.getElementById('quizOptions');
+    optionsDiv.innerHTML = q.options.map((opt, idx) =>
+        `<div class="quiz-option" onclick="answerQuiz(${idx})">${opt}</div>`
+    ).join('');
+    document.getElementById('quizResult').textContent = '';
+}
+
+function answerQuiz(selected) {
+    const q = quizQuestions[currentQuestion % quizQuestions.length];
+    const correct = selected === q.correct;
+    const optionDivs = document.querySelectorAll('.quiz-option');
+    optionDivs.forEach((div, idx) => {
+        if (idx === q.correct) div.classList.add('correct');
+        else if (idx === selected && !correct) div.classList.add('wrong');
+        div.style.pointerEvents = 'none';
+    });
+    if (correct) {
+        quizScore++;
+        addPoints(10);
+        document.getElementById('quizResult').textContent = '✅ Correct! +10 points';
+    } else {
+        document.getElementById('quizResult').textContent = '❌ Wrong answer.';
+    }
+    currentQuestion++;
+    appData.quizCount++;
+    saveData();
+    setTimeout(() => {
+        loadQuiz();
+        optionDivs.forEach(d => d.classList.remove('correct', 'wrong'));
+        optionDivs.forEach(d => d.style.pointerEvents = 'auto');
+    }, 1500);
+}
+
+// ---------- MEMORY GAME ----------
+let memoryCards = [];
+let flippedCards = [];
+let matchedPairs = 0;
+const emojis = ['🌳', '🌸', '🌞', '🌧️', '💨', '🐱'];
+
+function startMemoryGame() {
+    const modal = document.getElementById('gameModal');
+    document.getElementById('gameTitle').textContent = '🧠 Memory Match';
+    const content = document.getElementById('gameContent');
+    // duplicate and shuffle
+    let deck = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+    memoryCards = deck;
+    flippedCards = [];
+    matchedPairs = 0;
+    content.innerHTML = `<div class="memory-grid">` +
+        deck.map((emoji, idx) =>
+            `<div class="memory-card" data-index="${idx}" onclick="flipMemoryCard(this, '${emoji}')">?</div>`
+        ).join('') + `</div><p>Match all pairs!</p>`;
+    modal.classList.add('active');
+}
+
+function flipMemoryCard(card, emoji) {
+    if (flippedCards.length >= 2 || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+    card.textContent = emoji;
+    card.classList.add('flipped');
+    flippedCards.push({card, emoji});
+    if (flippedCards.length === 2) {
+        if (flippedCards[0].emoji === flippedCards[1].emoji) {
+            flippedCards.forEach(f => f.card.classList.add('matched'));
+            matchedPairs++;
+            flippedCards = [];
+            if (matchedPairs === emojis.length) {
+                addPoints(50);
+                document.getElementById('gameContent').innerHTML += '<p>🎉 You won! +50 points</p>';
+                appData.gamesPlayed.push('memory');
+                saveData();
+            }
+        } else {
+            setTimeout(() => {
+                flippedCards.forEach(f => {
+                    f.card.textContent = '?';
+                    f.card.classList.remove('flipped');
+                });
+                flippedCards = [];
+            }, 800);
+        }
+    }
+}
+
+// ---------- BREATHING ----------
+function startBreathing() {
+    const modal = document.getElementById('gameModal');
+    document.getElementById('gameTitle').textContent = '🫁 Breath Control';
+    const content = document.getElementById('gameContent');
+    content.innerHTML = `
+        <div style="text-align:center;">
+            <div class="breathing-circle" id="breathCircle">Breathe In</div>
+            <p>Follow the circle: 4s inhale, 4s exhale</p>
+            <button class="btn" onclick="stopBreathing()">Stop</button>
+        </div>`;
+    modal.classList.add('active');
+    let phase = 'inhale';
+    const circle = document.getElementById('breathCircle');
+    const interval = setInterval(() => {
+        if (!document.getElementById('breathCircle')) { clearInterval(interval); return; }
+        if (phase === 'inhale') {
+            circle.classList.add('inhale');
+            circle.classList.remove('exhale');
+            circle.textContent = 'Inhale';
+            phase = 'exhale';
+        } else {
+            circle.classList.add('exhale');
+            circle.classList.remove('inhale');
+            circle.textContent = 'Exhale';
+            phase = 'inhale';
+        }
+    }, 4000);
+    window.breathingInterval = interval;
+}
+
+function stopBreathing() {
+    if (window.breathingInterval) clearInterval(window.breathingInterval);
+    document.getElementById('gameContent').innerHTML += '<p>✅ Great session! +20 points</p>';
+    addPoints(20);
+    appData.gamesPlayed.push('breathing');
+    saveData();
+    setTimeout(closeModal, 1500);
+}
+
+// ---------- COMMUNITY ----------
+function addNewPost() {
+    const text = prompt("Enter your discussion topic:");
+    if (text) {
+        const postsDiv = document.getElementById('forumPosts');
+        const newPost = document.createElement('div');
+        newPost.className = 'forum-post';
+        newPost.innerHTML = `<strong>You:</strong> ${text}`;
+        postsDiv.prepend(newPost);
+    }
+}
+
+// ---------- LEADERBOARD ----------
+function updateLeaderboard() {
+    const lb = document.getElementById('leaderboard');
+    if (!lb) return;
+    const entries = [
+        {name: 'You', points: appData.points},
+        {name: 'Sarah', points: 3200},
+        {name: 'Mike', points: 2800},
+        {name: 'Anna', points: 1500}
+    ];
+    entries.sort((a,b) => b.points - a.points);
+    lb.innerHTML = entries.map((e, i) =>
+        `<div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+            <span>${i+1}. ${e.name}</span> <strong>${e.points} pts</strong>
+        </div>`
+    ).join('');
+}
+
+// ---------- NOTIFICATIONS & PROFILE ----------
+function showNotifications() {
+    alert(`🔔 Notifications:\n- You earned ${appData.points} total points.\n- Keep going!`);
+    document.getElementById('notifCount').textContent = '';
+}
+
+function showProfile() {
+    alert(`👤 Jordan Davis\nPoints: ${appData.points}\nLevel: ${appData.level}\nQuizzes done: ${appData.quizCount}`);
+}
+
+// ---------- TAB SWITCHING ----------
+function switchContent(name) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.toggle('active', t.id === name + '-tab'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.id === 'tab-btn-' + name));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.id === 'nav-item-' + name));
+}
+function switchTab(name) { switchContent(name); scrollTab(name); }
+function switchNav(name) { switchContent(name); scrollTab(name); }
+function scrollTab(name) {
+    const btn = document.getElementById('tab-btn-' + name);
+    if (btn) btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+}
+
+// ---------- MODAL ----------
+function closeModal() {
+    document.getElementById('gameModal').classList.remove('active');
+    if (window.breathingInterval) clearInterval(window.breathingInterval);
+}
+document.getElementById('gameModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+});
+
+// ---------- INIT ----------
+document.addEventListener('DOMContentLoaded', () => {
+    loadData();
+    loadQuiz();
+    switchContent('learn');
+});
+</script>
+</body>
+</html>
