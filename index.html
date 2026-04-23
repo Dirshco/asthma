@@ -299,6 +299,26 @@
     </style>
 </head>
 <body>
+    Here's the fixed version with proper error handling and best practices:
+
+```html
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker
+        .register("./service-worker.js")
+        .then((reg) => {
+          console.log("Service Worker Registered ✅", reg.scope);
+        })
+        .catch((err) => {
+          console.error("Service Worker Failed ❌", err);
+        });
+    });
+  } else {
+    console.warn("Service Workers are not supported in this browser.");
+  }
+</script>
+
     <div class="app-container">
         <div class="header">
             <div class="header-left">
