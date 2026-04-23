@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BreathWell - Asthma Education & Community</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS Reset & Variables */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --purple: #7B3FF2;
+            --yellow: #FFD700;
+            --teal: #00D9D9;
+            --light-purple: #E8D9FF;
+            --dark-bg: #F8F5FF;
+            --white: #FFFFFF;
+            --text-dark: #333333;
+            --shadow: 0 4px 15px rgba(0,0,0,0.1);
+            --shadow-lg: 0 8px 30px rgba(123, 63, 242, 0.2);
+        }
+
+        body.dark-mode {
+            --dark-bg: #1a1a2e;
+            --white: #16213e;
+            --text-dark: #f0f0f0;
+            --light-purple: #1f3460;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-dark);
+            overflow-x: hidden;
+            transition: background-color 0.3s ease;
+        }
+
+        .app-container {
+            max-width: 500px;
+            margin: 20px auto;
+            background: var(--white);
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            min-height: 95vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--purple) 0%, var(--teal) 100%);
+            padding: 15px 20px;
+            color: var(--white);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 25px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left h1 {
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .notification-badge, .profile-circle, .theme-toggle {
+            transition: transform 0.3s;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notification-badge:hover, .profile-circle:hover, .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .search-bar {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px 40px 10px 40px;
+            border: 2px solid var(--light-purple);
+            border-radius: 20px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-bar input:focus {
+            border-color: var(--purple);
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .content {
+            padding: 15px;
+            overflow-y: auto;
+            flex-grow: 1;
+            scrollbar-width: thin;
+            scrollbar-color: var(--teal) transparent;
+        }
+
+        .content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .content::-webkit-scrollbar-thumb {
+            background: var(--teal);
+            border-radius: 3px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            scrollbar-width: none;
+        }
+
+        .tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-btn {
+            flex-shrink: 0;
+            padding: 8px 14px;
+            border: none;
+            background: var(--light-purple);
+            color: var(--purple);
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            white-space: nowrap;
+            transform: scale(1);
+        }
+
+        .tab-btn:hover {
+            background: #d4c2f7;
+            transform: scale(1.05);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--purple), var(--teal));
+            color: var(--white);
+            box-shadow: var(--shadow);
+            transform: scale(1.05);
+        }
+
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+            animation: fadeSlideIn 0.5s ease-out;
+        }
+
+        .bottom-nav {
+            position: sticky;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--white);
+            display: flex;
+            justify-content: space-around;
+            border-top: 2px solid #f0f0f0;
+            padding: 10px 0;
+            flex-shrink: 0;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            color: #999;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            font-size: 12px;
+            font-weight: 600;
+            flex: 1;
+            padding: 8px 0;
+            transform: scale(1);
+        }
+
+        .nav-item:hover {
+            color: var(--purple);
+            transform: scale(1.05);
+        }
+
+        .nav-item.active {
+            color: var(--purple);
+            transform: scale(1.1);
+        }
+
+        .nav-item i {
+            font-size: 22px;
+            transition: transform 0.3s;
+        }
+
+        .nav-item.active i {
+            transform: translateY(-2px);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--purple);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 14px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--purple), var(--teal));
+            color: var(--white);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            width: 100%;
+            justify-content: center;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(123, 63, 242, 0.4);
+        }
+
+        .points-display {
+            background: linear-gradient(135deg, var(--purple), var(--teal));
+            color: var(--white);
+            border-radius: 15px;
+            padding: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .game-card {
+            background: linear-gradient(135deg, rgba(123, 63, 242, 0.15), rgba(0, 217, 217, 0.15));
+            border: 2px solid var(--teal);
+            border-radius: 15px;
+            padding: 14px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            transform: scale(1);
+        }
+
+        .game-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 217, 217, 0.3);
+        }
+
+        .forum-post {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 14px;
+            margin-bottom: 10px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .forum-post:hover {
+            transform: translateX(5px);
+            border-left: 4px solid var(--teal);
+        }
+
+        .rewards-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .reward-badge {
+            background: var(--light-purple);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            min-width: 70px;
+            cursor: pointer;
+            transition: all 0.3s;
+            transform: scale(1);
+        }
+
+        .reward-badge:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(123, 63, 242, 0.3);
+        }
+
+        .reward-badge.locked {
+            opacity: 0.6;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: flex-end;
+            transition: opacity 0.3s;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            width: 100%;
+            max-width: 500px;
+            border-radius: 30px 30px 0 0;
+            padding: 25px 20px 20px;
+            animation: slideUp 0.4s ease-out;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            background: var(--light-purple);
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            color: var(--purple);
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: var(--purple);
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--purple);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            box-shadow: var(--shadow-lg);
+            z-index: 2000;
+            transition: transform 0.5s ease;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--light-purple);
+            border-radius: 4px;
+            margin: 8px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, var(--purple), var(--teal));
+            transition: width 0.5s ease;
+            border-radius: 4px;
+        }
+
+        .quiz-options button {
+            background: var(--light-purple);
+            border: 2px solid var(--light-purple);
+            padding: 10px 16px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quiz-options button:hover, .quiz-options button.selected {
+            background: var(--purple);
+            color: white;
+            border-color: var(--purple);
+            transform: translateX(5px);
+        }
+
+        .quiz-options button.correct {
+            background: var(--teal);
+            color: white;
+            border-color: var(--teal);
+        }
+
+        .quiz-options button.incorrect {
+            background: #ff4757;
+            color: white;
+            border-color: #ff4757;
+        }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .shake {
+            animation: shake 0.3s ease-in-out;
+        }
+
+        /* Dark mode toggle */
+        .theme-toggle {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            border: 2px solid white;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastMessage">Success!</span>
+</div>
+
+<script>
+// Service Worker Registration
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("./service-worker.js")
+      .then((reg) => console.log("Service Worker Registered ✅", reg.scope))
+      .catch((err) => console.error("Service Worker Failed ❌", err));
+  });
+} else {
+  console.warn("Service Workers are not supported.");
+}
+</script>
+
+    <div class="app-container">
+        <div class="header">
+            <div class="header-left">
+                <h1><i class="fas fa-wind"></i> BreathWell</h1>
+            </div>
+            <div class="header-right">
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="notification-badge" onclick="showNotifications()" style="margin-left: 8px;">
+                    <i class="fas fa-bell"></i>
+                    <span style="position: relative; top: -8px; left: -2px; background: #ff4757; font-size: 10px; padding: 2px 6px; border-radius: 10px;">3</span>
+                </div>
+                <div class="profile-circle" onclick="showProfile()" style="background: white; color: var(--purple); width: 35px; height: 35px; border-radius: 50%; margin-left: 8px; font-weight: 600;">JD</div>
+            </div>
+        </div>
+
+        <div class="content" id="mainContent">
+            <div class="tabs" role="tablist">
+                <button id="tab-btn-learn" class="tab-btn active" onclick="switchTab('learn')">Learn</button>
+                <button id="tab-btn-play" class="tab-btn" onclick="switchTab('play')">Play</button>
+                <button id="tab-btn-community" class="tab-btn" onclick="switchTab('community')">Community</button>
+                <button id="tab-btn-rewards" class="tab-btn" onclick="switchTab('rewards')">Rewards</button>
+            </div>
+
+            <!-- Learn Tab -->
+            <div id="learn-tab" class="tab-content active">
+                <div class="points-display">
+                    <div>
+                        <h3 style="font-size: 14px; margin-bottom: 4px;">Your Points</h3>
+                        <div style="font-size: 24px; font-weight: 700;" id="pointsDisplay">2,450</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <p style="font-size: 12px; margin-bottom: 4px;">Current Level</p>
+                        <div style="font-size: 18px; font-weight: 700;">Level <span id="levelDisplay">5</span></div>
+                    </div>
+                </div>
+
+                <div class="progress-bar"><div class="progress-fill" id="dailyGoalBar" style="width: 65%;"></div></div>
+                <p style="font-size: 12px; margin-bottom: 15px; color: #999;">Daily Goal Progress (65%)</p>
+
+                <div class="section-title"><i class="fas fa-graduation-cap"></i> Today's Quiz</div>
+                <div class="card quiz-card" onclick="startQuiz()">
+                    <div style="font-size: 14px; font-weight: 700;">Asthma Triggers Quiz</div>
+                    <div style="margin-top: 8px; font-size: 12px; color: #999;">3 questions • +50 XP</div>
+                </div>
+
+                <div class="section-title" style="margin-top: 15px;"><i class="fas fa-stethoscope"></i> Expert Tips</div>
+                <div class="card expert-card">
+                    <div style="font-size: 13px; line-height: 1.5;">
+                        "During high pollen seasons, keep your windows closed and use an air purifier. This simple step can significantly reduce your asthma symptoms!"
+                    </div>
+                    <div style="margin-top: 8px; font-size: 11px; color: var(--purple); font-weight: 600;">Dr. Sarah Johnson • Pulmonologist</div>
+                </div>
+
+                <div class="section-title" style="margin-top: 15px;"><i class="fas fa-clock"></i> Breathing Exercise</div>
+                <div class="card breathing-card" onclick="openBreathingExercise()">
+                    <div style="font-size: 14px; font-weight: 700;">4-7-8 Breathing Technique</div>
+                    <div style="margin-top: 8px; font-size: 12px; color: #999;">Reduce stress • 5 minutes</div>
+                    <div class="progress-bar" style="margin-top: 8px;"><div class="progress-fill" style="width: 75%;"></div></div>
+                </div>
+            </div>
+
+            <!-- Play Tab -->
+            <div id="play-tab" class="tab-content">
+                <div class="section-title"><i class="fas fa-gamepad"></i> Mini Games</div>
+                <div class="game-grid">
+                    <div class="game-card" onclick="startGame('memory')"><div style="font-size: 24px;">🧠</div><div>Memory Match</div></div>
+                    <div class="game-card" onclick="startGame('trigger')"><div style="font-size: 24px;">🎯</div><div>Spot Trigger</div></div>
+                    <div class="game-card" onclick="startGame('breathing')"><div style="font-size: 24px;">🫁</div><div>Breath Control</div></div>
+                    <div class="game-card" onclick="startGame('puzzle')"><div style="font-size: 24px;">🧩</div><div>Medication Quiz</div></div>
+                </div>
+
+                <div class="section-title" style="margin-top: 15px;"><i class="fas fa-trophy"></i> Leaderboard</div>
+                <div class="card leaderboard-item" onclick="openLeaderboard()">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 30px; height: 30px; background: var(--teal); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">🥇</div>
+                        <div>
+                            <div style="font-weight: 600;">Sarah M.</div>
+                            <div style="font-size: 12px; color: #999;">12,340 pts</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Community Tab -->
+            <div id="community-tab" class="tab-content">
+                <div class="search-bar">
+                    <input type="text" placeholder="Search discussions..." onkeyup="filterPosts(event)">
+                    <i class="fas fa-search"></i>
+                </div>
+                
+                <div class="section-title"><i class="fas fa-comments"></i> Community Forum</div>
+                <button class="btn" style="margin-bottom: 15px;" onclick="openNewPostModal()">
+                    <i class="fas fa-plus"></i> New Discussion
+                </button>
+
+                <div class="forum-post">
+                    <div style="font-weight: 600;">My Asthma Journey 💙</div>
+                    <div style="font-size: 12px; color: #999; margin-top: 4px;">Posted by Emily R. • 2 hours ago</div>
+                    <div style="margin-top: 8px; font-size: 13px; line-height: 1.5;">Sharing tips that helped me manage my childhood asthma as an adult...</div>
+                    <div style="margin-top: 8px; font-size: 11px; color: var(--purple);">❤️ 24 | 💬 8 comments</div>
+                </div>
+
+                <div class="forum-post">
+                    <div style="font-weight: 600;">Best Air Purifiers?</div>
+                    <div style="font-size: 12px; color: #999; margin-top: 4px;">Posted by Mike T. • 5 hours ago</div>
+                    <div style="margin-top: 8px; font-size: 13px; line-height: 1.5;">Looking for recommendations for air purifiers that work well for allergies...</div>
+                    <div style="margin-top: 8px; font-size: 11px; color: var(--purple);">❤️ 16 | 💬 12 comments</div>
+                </div>
+            </div>
+
+            <!-- Rewards Tab -->
+            <div id="rewards-tab" class="tab-content">
+                <div class="points-display">
+                    <div>
+                        <h3 style="font-size: 14px; margin-bottom: 4px;">Next Level</h3>
+                        <div style="font-size: 12px;">Need 550 more points</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <p style="font-size: 12px; margin-bottom: 4px;">Unlock at</p>
+                        <div style="font-size: 18px; font-weight: 700;">Level 6</div>
+                    </div>
+                </div>
+
+                <div class="section-title"><i class="fas fa-star"></i> Achievements</div>
+                <div class="rewards-container">
+                    <div class="reward-badge" onclick="showRewardDetails('first-quiz')">
+                        <div style="font-size: 24px;">🎓</div>
+                        <div style="font-size: 10px; margin-top: 4px;">First Quiz</div>
+                        <div style="font-size: 10px; color: #999; margin-top: 2px;">✓ Unlocked</div>
+                    </div>
+                    <div class="reward-badge" onclick="showRewardDetails('week-warrior')">
+                        <div style="font-size: 24px;">⚔️</div>
+                        <div style="font-size: 10px; margin-top: 4px;">7-Day Warrior</div>
+                        <div style="font-size: 10px; color: #999; margin-top: 2px;">✓ Unlocked</div>
+                    </div>
+                    <div class="reward-badge locked" onclick="showRewardDetails('expert')">
+                        <div style="font-size: 24px;">👨‍⚕️</div>
+                        <div style="font-size: 10px; margin-top: 4px;">Expert</div>
+                        <div style="font-size: 10px; color: #999; margin-top: 2px;">🔒 Locked</div>
+                    </div>
+                </div>
+
+                <div class="section-title" style="margin-top: 15px;"><i class="fas fa-calendar-alt"></i> Your Streak</div>
+                <div class="card">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div>
+                            <div style="font-weight: 700; font-size: 18px;">12 Days 🔥</div>
+                            <div style="font-size: 12px; color: #999; margin-top: 4px;">Keep it up! Bonus: +50 XP</div>
+                        </div>
+                        <div style="font-size: 30px;">✨</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <div id="nav-item-learn" class="nav-item active" onclick="switchNav('learn')">
+                <i class="fas fa-book"></i><span>Learn</span>
+            </div>
+            <div id="nav-item-play" class="nav-item" onclick="switchNav('play')">
+                <i class="fas fa-play"></i><span>Play</span>
+            </div>
+            <div id="nav-item-community" class="nav-item" onclick="switchNav('community')">
+                <i class="fas fa-users"></i><span>Community</span>
+            </div>
+            <div id="nav-item-rewards" class="nav-item" onclick="switchNav('rewards')">
+                <i class="fas fa-trophy"></i><span>Rewards</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Modal -->
+    <div id="gameModal" class="modal" onclick="closeModalIfOutside(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal()">✕</button>
+            <h2 id="gameTitle" style="color: var(--purple); margin-bottom: 15px;"></h2>
+            <div id="gameContent"></div>
+        </div>
+    </div>
+
+    <!-- Quiz Modal -->
+    <div id="quizModal" class="modal" onclick="closeModalIfOutside(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeQuizModal()">✕</button>
+            <h2 id="quizQuestion" style="color: var(--purple); margin-bottom: 15px;"></h2>
+            <div id="quizOptions" class="quiz-options"></div>
+            <div id="quizFeedback" style="margin-top: 12px; font-weight: 600;"></div>
+        </div>
+    </div>
+
+    <!-- New Post Modal -->
+    <div id="newPostModal" class="modal" onclick="closeModalIfOutside(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeNewPostModal()">✕</button>
+            <h2 style="color: var(--purple); margin-bottom: 15px;">Create New Discussion</h2>
+            <textarea id="postContent" rows="5" placeholder="Share your thoughts or ask a question..." 
+                style="width: 100%; border: 2px solid var(--light-purple); border-radius: 12px; padding: 12px; font-size: 14px; resize: none; margin-bottom: 12px;"></textarea>
+            <button class="btn" onclick="submitPost()">
+                <i class="fas fa-paper-plane"></i> Post Discussion
+            </button>
+        </div>
+    </div>
+
+    <!-- Breathing Exercise Modal -->
+    <div id="breathingModal" class="modal" onclick="closeBreathingExercise()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeBreathingExercise()">✕</button>
+            <h2 style="color: var(--purple); margin-bottom: 10px;">4-7-8 Breathing</h2>
+            <div style="text-align: center; padding: 30px;">
+                <div id="breathingCircle" style="width: 150px; height: 150px; background: var(--light-purple); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 48px; font-weight: 700; color: var(--purple); transition: all 0.5s;">
+                    Inhale
+                </div>
+                <p style="margin-top: 20px; color: #999;">Follow the circle breathing pattern</p>
+            </div>
+            <button class="btn" onclick="startBreathingExercise()">
+                <i class="fas fa-play"></i> Start Session
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- State Management with localStorage ---
+        const DEFAULT_STATE = {
+            currentTab: 'learn',
+            points: 2450,
+            level: 5,
+            streak: 12,
+            dailyProgress: 65,
+            theme: 'light',
+            lastVisit: new Date().toISOString()
+        };
+
+        let appState = JSON.parse(localStorage.getItem('breathwellState')) || DEFAULT_STATE;
+
+        function saveState() {
+            localStorage.setItem('breathwellState', JSON.stringify(appState));
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const icon = type === 'error' ? '<i class="fas fa-times-circle"></i>' : '<i class="fas fa-check-circle"></i>';
+            toast.querySelector('#toastMessage').textContent = message;
+            toast.style.background = type === 'error' ? '#ff4757' : 'var(--purple)';
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // --- Navigation & Tabs ---
+        function switchContent(contentName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.toggle('active', tab.id === contentName + '-tab');
+                tab.setAttribute('aria-hidden', !(tab.id === contentName + '-tab'));
+            });
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                const isActive = btn.id === 'tab-btn-' + contentName;
+                btn.classList.toggle('active', isActive);
+                btn.setAttribute('aria-selected', isActive);
+            });
+
+            document.querySelectorAll('.nav-item').forEach(nav => {
+                const isActive = nav.id === 'nav-item-' + contentName;
+                nav.classList.toggle('active', isActive);
+            });
+
+            appState.currentTab = contentName;
+            saveState();
+        }
+
+        function switchTab(tabName) { switchContent(tabName); }
+        function switchNav(navName) { switchContent(navName); }
+
+        // --- Theme Toggle ---
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            appState.theme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+            saveState();
+            const icon = document.querySelector('.theme-toggle i');
+            icon.className = appState.theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        // --- User Profile & Stats ---
+        function showNotifications() {
+            showToast('✨ You have 3 new notifications!', 'info');
+        }
+
+        function showProfile() {
+            showModal('profile', `
+                <h2 style="margin-bottom: 15px;">👤 Your Profile</h2>
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <div style="width: 80px; height: 80px; background: var(--purple); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; margin: 0 auto;">JD</div>
+                </div>
+                <div class="card" style="padding: 12px; margin-bottom: 8px;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Points</span>
+                        <strong>${appState.points.toLocaleString()}</strong>
+                    </div>
+                </div>
+                <div class="card" style="padding: 12px; margin-bottom: 8px;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Level</span>
+                        <strong>Level ${appState.level}</strong>
+                    </div>
+                </div>
+                <div class="card" style="padding: 12px; margin-bottom: 8px;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Streak</span>
+                        <strong>${appState.streak} days 🔥</strong>
+                    </div>
+                </div>
+                <button class="btn" onclick="closeModal()">Close</button>
+            `, 'profile');
+        }
+
+        function updateStats(points, text = 'gained') {
+            appState.points += parseInt(points);
+            if (appState.points >= appState.level * 1000) {
+                appState.level++;
+                showToast(`🎉 Level Up! Now Level ${appState.level}`, 'success');
+            }
+            document.getElementById('pointsDisplay').textContent = appState.points.toLocaleString();
+            document.getElementById('levelDisplay').textContent = appState.level;
+            saveState();
+        }
+
+        // --- Quiz System ---
+        const quizQuestions = [
+            { question: "What is a common asthma trigger?", options: ["Exercise only", "Allergens", "Bright lights", "Sweet foods"], correct: 1 },
+            { question: "How often should you clean air filters?", options: ["Once a year", "Every 1-3 months", "Never needed", "Only in winter"], correct: 1 },
+            { question: "Which breathing technique helps reduce stress?", options: ["Shallow breathing", "4-7-8 method", "Rapid breathing", "Holding breath"], correct: 1 }
+        ];
+
+        let currentQuestionIndex = 0;
+        let quizScore = 0;
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            quizScore = 0;
+            showModal('quiz', generateQuizHTML());
+        }
+
+        function generateQuizHTML() {
+            const q = quizQuestions[currentQuestionIndex];
+            return `
+                <h3 style="margin-bottom: 15px; font-size: 16px;">${q.question}</h3>
+                <div class="quiz-options" id="currentQuizOptions"></div>
+                <div id="quizFeedback" style="margin-top: 12px; font-weight: 600;"></div>
+            `;
+        }
+
+        function renderQuizQuestion() {
+            const q = quizQuestions[currentQuestionIndex];
+            const optionsDiv = document.getElementById('currentQuizOptions');
+            const feedbackDiv = document.getElementById('quizFeedback');
+            feedbackDiv.textContent = '';
+            feedbackDiv.style.color = 'inherit';
+
+            if (currentQuestionIndex >= quizQuestions.length) {
+                document.getElementById('quizQuestion').textContent = 'Quiz Complete! 🎉';
+                optionsDiv.innerHTML = `
+                    <button class="btn" onclick="closeQuizModal()">
+                        Return
+                    </button>
+                `;
+                updateStats(50, 'earned');
+                showToast(`You scored ${quizScore}/${quizQuestions.length}! +50 XP`, 'success');
+                return;
+            }
+
+            document.getElementById('quizQuestion').textContent = `Question ${currentQuestionIndex + 1}: ${q.question}`;
+            optionsDiv.innerHTML = q.options.map((opt, idx) => 
+                `<button class="quiz-option" onclick="answerQuiz(${idx})">${opt}</button>`
+            ).join('');
+        }
+
+        function answerQuiz(selectedIndex) {
+            const q = quizQuestions[currentQuestionIndex];
+            const buttons = document.querySelectorAll('.quiz-option');
+            buttons[selectedIndex].classList.add(selectedIndex === q.correct ? 'correct' : 'incorrect');
+
+            if (selectedIndex === q.correct) {
+                quizScore++;
+                buttons[selectedIndex].classList.remove('incorrect');
+            } else {
+                buttons[q.correct].classList.add('correct');
+            }
+
+            const feedbackDiv = document.getElementById('quizFeedback');
+            feedbackDiv.textContent = selectedIndex === q.correct ? '✅ Correct!' : '❌ Wrong answer';
+            feedbackDiv.style.color = selectedIndex === q.correct ? 'var(--teal)' : '#ff4757';
+
+            setTimeout(() => {
+                currentQuestionIndex++;
+                renderQuizQuestion();
+            }, 1000);
+        }
+
+        function closeQuizModal() { closeModal('quiz'); }
+
+        // --- Game System ---
+        function startGame(gameType) {
+            const games = {
+                memory: { title: '🧠 Memory Match', content: 'Match pairs of asthma-related cards! (+30 XP)' },
+                trigger: { title: '🎯 Spot the Trigger', content: 'Identify asthma triggers from scenarios! (+25 XP)' },
+                breathing: { title: '🫁 Breath Control', content: 'Complete breathing exercises! (+35 XP)' },
+                puzzle: { title: '🧩 Medication Quiz', content: 'Answer quick medication questions! (+30 XP)' }
+            };
+            const game = games[gameType];
+            showModal('game', `
+                <h2 style="margin-bottom: 10px;">${game.title}</h2>
+                <p style="margin-bottom: 20px; color: #999;">${game.content}</p>
+                <button class="btn" onclick="completeGame('${gameType}')">
+                    <i class="fas fa-play"></i> Start Game
+                </button>
+            `);
+        }
+
+        function completeGame(gameType) {
+            updateStats(30, 'earned');
+            closeModal('game');
+            showToast(`Game completed! +30 XP gained`, 'success');
+        }
+
+        // --- Community System ---
+        function openNewPostModal() {
+            showModal('newPost', `
+                <h2 style="margin-bottom: 15px;">Create New Discussion</h2>
+                <textarea id="postContent" rows="5" placeholder="Share your thoughts or ask a question..." 
+                    style="width: 100%; border: 2px solid var(--light-purple); border-radius: 12px; padding: 12px; font-size: 14px; resize: none; margin-bottom: 12px;"></textarea>
+                <button class="btn" onclick="submitPost()">
+                    <i class="fas fa-paper-plane"></i> Post Discussion
+                </button>
+            `);
+        }
+
+        function submitPost() {
+            const content = document.getElementById('postContent');
+            if (content.value.trim() === '') {
+                content.parentElement.classList.add('shake');
+                setTimeout(() => content.parentElement.classList.remove('shake'), 500);
+                return;
+            }
+            closeModal('newPost');
+            content.value = '';
+            updateStats(10, 'earned');
+            showToast('Discussion posted! +10 XP', 'success');
+        }
+
+        function filterPosts(e) {
+            if (e.key === 'Enter') {
+                showToast('Searching posts...', 'info');
+            }
+        }
+
+        // --- Breathing Exercise ---
+        function openBreathingExercise() { showModal('breathing', ''); }
+
+        function startBreathingExercise() {
+            const circle = document.getElementById('breathingCircle');
+            let inhaling = true;
+            let timer = setInterval(() => {
+                if (inhaling) {
+                    circle.textContent = 'Inhale';
+                    circle.style.transform = 'scale(1.2)';
+                    circle.style.background = 'var(--purple)';
+                    circle.style.color = 'white';
+                    inhaling = false;
+                } else {
+                    circle.textContent = 'Exhale';
+                    circle.style.transform = 'scale(1)';
+                    circle.style.background = 'var(--light-purple)';
+                    circle.style.color = 'var(--purple)';
+                    inhaling = true;
+                }
+            }, 4000);
+
+            setTimeout(() => {
+                clearInterval(timer);
+                closeModal('breathing');
+                updateStats(15, 'earned');
+                showToast('Breathing exercise completed! +15 XP', 'success');
+            }, 20000);
+
+            setTimeout(() => {
+                document.getElementById('breathingModal').removeEventListener('click', closeBreathingExercise);
+            }, 20000);
+        }
+
+        function closeBreathingExercise() {
+            closeModal('breathing');
+            const timer = setTimeout(startBreathingExercise, 4000);
+            clearTimeout(timer);
+        }
+
+        // --- Reward System ---
+        function showRewardDetails(rewardId) {
+            const rewards = {
+                'first-quiz': '🎓 First Quiz: Completed your first quiz! ✓ Unlocked',
+                'week-warrior': '⚔️ 7-Day Warrior: Logged in 7 days straight! ✓ Unlocked',
+                'expert': '👨‍⚕️ Expert: Score 100 on 5 quizzes! Progress: 1/5'
+            };
+            alert(rewards[rewardId]);
+        }
+
+        // --- Modal System ---
+        function showModal(id, content) {
+            document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
+            document.getElementById(`${id}Modal`).querySelector('.modal-content').innerHTML = content;
+            document.getElementById(`${id}Modal`).classList.add('active');
+            
+            if (id === 'quiz') renderQuizQuestion();
+        }
+
+        function closeModal(type) {
+            document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
+        }
+
+        function closeModalIfOutside(e) {
+            if (e.target.classList.contains('modal')) closeModal(e.target.id.replace('Modal', ''));
+        }
+
+        function openLeaderboard() { showToast('Leaderboard coming soon!', 'info'); }
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            switchContent(appState.currentTab);
+            document.getElementById('pointsDisplay').textContent = appState.points.toLocaleString();
+            document.getElementById('levelDisplay').textContent = appState.level;
+            if (appState.theme === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.querySelector('.theme-toggle i').className = 'fas fa-sun';
+            }
+        });
+    </script>
+</body>
+</html>
